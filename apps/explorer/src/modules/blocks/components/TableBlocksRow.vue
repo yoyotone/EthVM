@@ -1,6 +1,6 @@
 <template>
   <v-container pa-0>
-    <v-layout d-block>
+    <v-layout d-block class="pb-5">
       <!--
       =====================================================================================
         Mobile (XS)
@@ -59,12 +59,11 @@
           </v-flex>
           <v-flex sm6>
             <v-layout row pb-2>
-              <p class="info--text psmall pr-2">{{ $t('common.hash') }}:</p>
-              <app-transform-hash :hash="block.hash" :link="`/block/${block.hash}`" />
+              <app-transform-hash :hash="block.hash" :link="`/block/${block.hash}`" :font-class="'black--text'" />
             </v-layout>
             <v-layout row>
-              <p class="info--text pr-1">{{ $t('miner.name') }}:</p>
-              <app-transform-hash :hash="block.author" :italic="true" :link="`/address/${block.author}`" />
+              <div class="black--text caption pr-1">{{ $t('miner.by') }} </div>
+              <app-transform-hash :hash="block.author" :link="`/address/${block.author}`" :font-class="'black--text caption'" />
             </v-layout>
           </v-flex>
           <v-spacer hidden-xl-only />
@@ -100,7 +99,6 @@
             <v-spacer />
           </v-layout>
         </v-flex>
-        <v-divider class="mb-2 mt-2" />
       </v-flex>
     </v-layout>
   </v-container>

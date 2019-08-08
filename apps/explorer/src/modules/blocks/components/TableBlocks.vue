@@ -35,14 +35,19 @@
     -->
     <v-layout pl-2 pr-2>
       <v-flex hidden-xs-only sm12>
-        <v-card v-if="!hasError" color="info" flat class="white--text pl-3 pr-1 table-blocks-header-card" height="40px">
+        <v-card v-if="!hasError" flat class="pl-3 pr-1 table-blocks-header-card" height="40px">
           <v-layout align-center justify-start row fill-height pr-3>
             <v-flex sm2>
               <h5>{{ $t('block.number') }}</h5>
             </v-flex>
-            <v-spacer />
+            <v-flex sm2>
+              <h5>{{ $t('miner.name') }}</h5>
+            </v-flex>
             <v-flex sm2>
               <h5>{{ $tc('tx.name', 2) }}</h5>
+            </v-flex>
+            <v-flex sm2>
+              <h5>{{ $tc('uncle.name', 2) }}</h5>
             </v-flex>
             <v-flex sm1 xl2>
               <h5>{{ $t('miner.reward-short') }}</h5>

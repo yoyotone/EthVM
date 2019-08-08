@@ -1,13 +1,13 @@
 <template>
   <div class="transform-hash-container">
     <router-link v-if="link" :to="url">
-      <div :class="hashClass">
+      <div :class="[hashClass, fontClass]">
         <div class="hash-section">{{ first }}</div>
         <div class="concat hash-section">{{ middle }}</div>
         <div class="hash-section">{{ last }}</div>
       </div>
     </router-link>
-    <div :class="hashClass" v-else>
+    <div :class="[hashClass, fontClass]" v-else>
       <div class="hash-section">{{ first }}</div>
       <div class="concat hash-section">{{ middle }}</div>
       <div class="hash-section">{{ last }}</div>
@@ -30,6 +30,7 @@ export default class AppTransformHash extends Vue {
   @Prop({ type: Boolean, default: false }) italic!: boolean
   @Prop(String) link!: string
   @Prop({ type: Boolean, default: true }) isBlue!: boolean
+  @Prop({ type: String, default: 'secondary--text' }) fontClass!: string
 
   /*
   ===================================================================================
@@ -50,10 +51,7 @@ export default class AppTransformHash extends Vue {
   }
 
   get hashClass(): string {
-    if (!this.isBlue) {
-      return this.italic ? 'hash-container font-italic black--text font-mono' : ' hash-container black--text font-mono'
-    }
-    return this.italic ? 'hash-container font-italic secondary--text font-mono' : ' hash-container secondary--text font-mono'
+    return this.italic ? 'hash-container font-italic font-mono' : ' hash-container font-mono'
   }
 
   get url(): string {
@@ -70,7 +68,8 @@ export default class AppTransformHash extends Vue {
 
 }
 .transform-hash-container {
- overflow: hidden;
+  overflow: hidden;
+  display: inline-block;
 }
 .hash-container {
   min-width: 80px;
