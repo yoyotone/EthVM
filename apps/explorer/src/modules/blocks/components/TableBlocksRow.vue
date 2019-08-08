@@ -1,6 +1,6 @@
 <template>
   <v-container pa-0>
-    <v-layout d-block class="pb-5">
+    <v-layout d-block>
       <!--
       =====================================================================================
         Mobile (XS)
@@ -50,55 +50,30 @@
           Block Info
         =====================================================================================
         -->
-        <v-layout grid-list-xs row wrap align-center justify-start fill-height pl-3 pr-2 pt-2 pb-1>
-          <v-flex sm2>
-            <router-link class="black--text pb-1" :to="`/block/${block.hash}`">{{ block.numberBN }}</router-link>
-            <div v-if="block.uncleHashes.length" class="arrow">
-              <div class="line"></div>
-            </div>
+        <v-layout grid-list-xs row wrap align-center justify-start fill-height pl-3 pr-2 pt-2 pb-1 class="caption">
+          <v-flex sm2 md1>
+            <router-link class="primary--text pb-1" :to="`/block/${block.hash}`">{{ block.numberBN }}</router-link>
           </v-flex>
-          <v-flex sm6>
-            <v-layout row pb-2>
-              <app-transform-hash :hash="block.hash" :link="`/block/${block.hash}`" :font-class="'black--text'" />
-            </v-layout>
-            <v-layout row>
-              <div class="black--text caption pr-1">{{ $t('miner.by') }} </div>
-              <app-transform-hash :hash="block.author" :link="`/address/${block.author}`" :font-class="'black--text caption'" />
-            </v-layout>
+          <v-flex sm2 md3>
+            <app-transform-hash :hash="block.author" :link="`/address/${block.author}`" :font-class="'primary--text'" />
           </v-flex>
-          <v-spacer hidden-xl-only />
           <v-flex sm2>
-            <v-layout row wrap>
+            <app-time-ago :timestamp="block.timestamp" />
+          </v-flex>
+          <v-flex sm2>
+            <v-layout row wrap pa-2>
               <p class="pr-1">{{ block.numSuccessfulTxsBN }} {{ $tc('tx.name-short', sucessTransalate()) }}</p>
               <p v-if="block.numFailedTxsBN > 0" class="txFail--text">({{ block.numFailedTxsBN }} {{ $tc('tx.failed', failedTranslate()) }})</p>
             </v-layout>
+          </v-flex>
+          <v-flex sm2>
+            <p class="black--text align-center mb-0">{{ block.uncleHashes.length }}</p>
           </v-flex>
           <v-flex sm1 xl2>
             <p class="black--text align-center mb-0">{{ getRoundNumber(ethValue(block.rewardBN).toEth()) }}</p>
           </v-flex>
         </v-layout>
-        <!--
-        =====================================================================================
-          Uncles Info
-        =====================================================================================
-        -->
-        <v-flex sm12 v-if="block.uncleHashes.length" pt-3>
-          <v-layout row class="uncle">
-            <v-flex sm2> </v-flex>
-            <v-flex sm6>
-              <div class="uncles">
-                <v-card flat color="transparent">
-                  <v-card-title class="pt-1 font-weight-medium pb-2">{{ $tc('uncle.name', 2) }}:</v-card-title>
-                  <v-layout row pl-4 pr-4 pb-2 v-for="(uncle, index) in block.uncleHashes" :key="index">
-                    <p class="info--text psmall pr-2">{{ $t('common.hash') }}:</p>
-                    <app-transform-hash :hash="uncle" :link="`/uncle/${uncle}`" />
-                  </v-layout>
-                </v-card>
-              </div>
-            </v-flex>
-            <v-spacer />
-          </v-layout>
-        </v-flex>
+        <v-divider class="mb-1 mt-1" />
       </v-flex>
     </v-layout>
   </v-container>
@@ -111,9 +86,11 @@ import { EthValue } from '@app/core/models'
 import BN from 'bignumber.js'
 import AppTransformHash from '@app/core/components/ui/AppTransformHash.vue'
 import { BlockSummaryPageExt_items } from '@app/core/api/apollo/extensions/block-summary-page.ext'
+import AppTimeAgo from '@app/core/components/ui/AppTimeAgo.vue';
 
 @Component({
   components: {
+      AppTimeAgo,
     AppTransformHash
   }
 })

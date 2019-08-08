@@ -37,11 +37,14 @@
       <v-flex hidden-xs-only sm12>
         <v-card v-if="!hasError" flat class="pl-3 pr-1 table-blocks-header-card" height="40px">
           <v-layout align-center justify-start row fill-height pr-3>
-            <v-flex sm2>
+            <v-flex sm2 md1>
               <h5>{{ $t('block.number') }}</h5>
             </v-flex>
-            <v-flex sm2>
+            <v-flex sm2 md3>
               <h5>{{ $t('miner.name') }}</h5>
+            </v-flex>
+            <v-flex sm2>
+              <h5>{{ $t('common.age') }}</h5>
             </v-flex>
             <v-flex sm2>
               <h5>{{ $tc('tx.name', 2) }}</h5>

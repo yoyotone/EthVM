@@ -2,11 +2,13 @@
   <div>
     <v-layout v-if="isHome" align-center justify-space-between row wrap fill-height pb-1 pr-2 pl-2>
       <v-flex xs6>
-        <v-card-title class="title font-weight-bold pl-1">{{ title }}</v-card-title>
+        <v-card-title class="title font-weight-bold">{{ title }}</v-card-title>
       </v-flex>
       <v-spacer />
       <v-flex shrink>
-        <v-btn outline color="secondary" class="text-capitalize ma-0" :to="pageLink">{{ $t('btn.view-all') }}</v-btn>
+        <v-btn outline color="primary" depressed class="text-capitalize ma-0" :to="pageLink">{{ $t('btn.view-all') }}
+          <v-icon class="fas fa-1x fa-chevron-right ml-1"></v-icon>
+        </v-btn>
       </v-flex>
     </v-layout>
     <v-layout v-else align-center row wrap fill-height pa-2>

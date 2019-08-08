@@ -53,6 +53,6 @@ export default class App extends Vue {
 @import '~cssPath/global.css';
 
 .content {
-  background: #f3f4f8;
+  background: #FFF;
 }
 </style>

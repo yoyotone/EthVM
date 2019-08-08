@@ -94,3 +94,8 @@ p {
 .token-image-mobile {
   width: 36px;
 }
+
+/* button icons */
+.fa-1x {
+  font-size: 1em !important;
+}

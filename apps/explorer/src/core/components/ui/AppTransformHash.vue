@@ -69,7 +69,6 @@ export default class AppTransformHash extends Vue {
 }
 .transform-hash-container {
   overflow: hidden;
-  display: inline-block;
 }
 .hash-container {
   min-width: 80px;

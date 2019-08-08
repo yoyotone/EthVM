@@ -48,7 +48,7 @@ import TableBlocks from '@app/modules/blocks/components/TableBlocks.vue'
 import TableTxs from '@app/modules/txs/components/TableTxs.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-const MAX_ITEMS = 50
+const MAX_ITEMS = 8
 
 @Component({
   components: {
