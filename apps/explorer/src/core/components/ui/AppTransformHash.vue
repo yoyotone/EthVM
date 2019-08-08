@@ -30,7 +30,7 @@ export default class AppTransformHash extends Vue {
   @Prop({ type: Boolean, default: false }) italic!: boolean
   @Prop(String) link!: string
   @Prop({ type: Boolean, default: true }) isBlue!: boolean
-  @Prop({ type: String, default: 'secondary--text' }) fontClass!: string
+  @Prop({ type: String, default: 'primary--text' }) fontClass!: string
 
   /*
   ===================================================================================

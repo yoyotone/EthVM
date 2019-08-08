@@ -58,7 +58,7 @@
             <app-transform-hash :hash="block.author" :link="`/address/${block.author}`" :font-class="'primary--text'" />
           </v-flex>
           <v-flex sm2>
-            <app-time-ago :timestamp="block.timestamp" />
+            <app-time-ago :timestamp="block.timestampDate" />
           </v-flex>
           <v-flex sm2>
             <v-layout row wrap pa-2>

@@ -49,7 +49,7 @@
       =====================================================================================
       -->
       <v-flex hidden-xs-only sm12>
-        <v-layout grid-list-xs row wrap align-center justify-start fill-height pl-3 pr-2 pt-2 pb-1>
+        <v-layout grid-list-xs row wrap align-center justify-start fill-height pl-3 pr-2 pt-2 pb-1 class="caption">
           <!--
           =====================================================================================
             BLOCK NUMBER / HASH
@@ -59,8 +59,8 @@
             MD: 1/12 (1)
           =====================================================================================
           -->
-          <v-flex sm2 md1 pr-1>
-            <router-link class="primary--text text-truncate font-italic psmall" :to="`/block/${tx.blockHash}`">{{ tx.blockNumberBN }}</router-link>
+          <v-flex sm2 md1 pr-1 pl-3>
+            <router-link class="primary--text text-truncate psmall" :to="`/block/${tx.blockHash}`">{{ tx.blockNumberBN }}</router-link>
           </v-flex>
           <!--
           =====================================================================================
@@ -71,31 +71,42 @@
             MD: 7/12 (6)
           =====================================================================================
           -->
-          <v-flex d-flex sm7 md6 pr-3>
-            <v-layout row wrap align-center pb-1>
-              <v-flex sm12 pa-2>
-                <v-layout row align-center justift-start pa-1>
-                  <v-flex shrink pa-1>
-                    <p class="info--text psmall">{{ $tc('tx.hash', 1) }}:</p>
-                  </v-flex>
-                  <v-flex sm10 pa-1>
-                    <app-transform-hash :hash="tx.hash" :link="`/tx/${tx.hash}`" />
-                  </v-flex>
-                </v-layout>
-              </v-flex>
-              <v-flex sm12 pa-2>
-                <v-layout row align-center justify-space-around fill-height pa-2>
-                  <p class="info--text mb-0 mr-1">{{ $t('tx.from') }}:</p>
-                  <app-transform-hash :hash="tx.from" :link="`/address/${tx.from}`" :italic="true" />
-                  <v-icon class="fas fa-arrow-right primary--text pl-2 pr-2" small></v-icon>
-                  <p class="info--text mb-0 mr-1" v-if="tx.isContractCreation">{{ $tc('contract.name', 1) }}:</p>
-                  <p class="info--text mb-0 mr-1" v-else>{{ $t('tx.to') }}:</p>
-                  <app-transform-hash v-if="tx.isContractCreation" :hash="tx.creates" :link="`/address/${tx.creates}`" :italic="true" />
-                  <app-transform-hash v-else :hash="tx.to" :link="`/address/${tx.to}`" :italic="true" />
-                </v-layout>
-              </v-flex>
-            </v-layout>
+          <v-flex d-flex sm3 md2 pr-3>
+            <app-transform-hash :hash="tx.hash" :link="`/tx/${tx.hash}`" />
           </v-flex>
+
+          <v-flex sm2 pr-3>
+            <app-transform-hash :hash="tx.from" :link="`/address/${tx.from}`" />
+          </v-flex>
+
+          <v-flex sm2 pr-3>
+            <app-transform-hash v-if="tx.isContractCreation" :hash="tx.creates" :link="`/address/${tx.creates}`" />
+            <app-transform-hash v-else :hash="tx.to" :link="`/address/${tx.to}`" />
+          </v-flex>
+<!--            -->
+<!--            <v-layout row wrap align-center pb-1>-->
+<!--              <v-flex sm12 pa-2>-->
+<!--                <v-layout row align-center justift-start pa-1>-->
+<!--                  <v-flex shrink pa-1>-->
+<!--                    <p class="info&#45;&#45;text psmall">{{ $tc('tx.hash', 1) }}:</p>-->
+<!--                  </v-flex>-->
+<!--                  <v-flex sm10 pa-1>-->
+<!--                    <app-transform-hash :hash="tx.hash" :link="`/tx/${tx.hash}`" />-->
+<!--                  </v-flex>-->
+<!--                </v-layout>-->
+<!--              </v-flex>-->
+<!--              <v-flex sm12 pa-2>-->
+<!--                <v-layout row align-center justify-space-around fill-height pa-2>-->
+<!--                  <p class="info&#45;&#45;text mb-0 mr-1">{{ $t('tx.from') }}:</p>-->
+<!--                  <app-transform-hash :hash="tx.from" :link="`/address/${tx.from}`" :italic="true" />-->
+<!--                  <v-icon class="fas fa-arrow-right primary&#45;&#45;text pl-2 pr-2" small></v-icon>-->
+<!--                  <p class="info&#45;&#45;text mb-0 mr-1" v-if="tx.isContractCreation">{{ $tc('contract.name', 1) }}:</p>-->
+<!--                  <p class="info&#45;&#45;text mb-0 mr-1" v-else>{{ $t('tx.to') }}:</p>-->
+<!--                  <app-transform-hash v-if="tx.isContractCreation" :hash="tx.creates" :link="`/address/${tx.creates}`" :italic="true" />-->
+<!--                  <app-transform-hash v-else :hash="tx.to" :link="`/address/${tx.to}`" :italic="true" />-->
+<!--                </v-layout>-->
+<!--              </v-flex>-->
+<!--            </v-layout>-->
           <!--
           =====================================================================================
           ETH VALUE
@@ -105,7 +116,7 @@
           MD: 8/12 (1)
           =====================================================================================
           -->
-          <v-flex d-flex sm2 md1 pr-0>
+          <v-flex d-flex sm2 md1 pr-0 class="text-sm-center">
             <p v-if="$vuetify.breakpoint.xsOnly" :class="[tx.successful ? 'txSuccess--text mb-0' : 'txFail--text mb-0']">
               {{ $t('common.amount') }}: {{ getRoundNumber(ethValue(tx.valueBN).toEth()) }}
             </p>
@@ -134,7 +145,7 @@
             MD: 11/12 (2)
           =====================================================================================
           -->
-          <v-flex hidden-sm-and-down md2>
+          <v-flex hidden-sm-and-down md2 class="text-sm-center">
             <app-time-ago :timestamp="tx.timestampDate" />
           </v-flex>
           <!--
@@ -146,7 +157,7 @@
             MD: 9/12 (1)
           =====================================================================================
           -->
-          <v-flex hidden-sm-and-down md1>
+          <v-flex hidden-sm-and-down md1 class="text-sm-center">
             <p class="black--text text-truncate mb-0">{{ ethValue(tx.feeBN.toFixed()).toEth() }}</p>
           </v-flex>
           <!--
@@ -158,7 +169,7 @@
           MD: 12/12 (1)
           =====================================================================================
           -->
-          <v-flex v-if="!isPending" sm1>
+          <v-flex v-if="!isPending" sm1 class="text-sm-center">
             <v-icon v-if="tx.successful" small class="txSuccess--text">fa fa-check-circle</v-icon>
             <v-icon v-else small class="txFail--text">fa fa-times-circle</v-icon>
           </v-flex>

@@ -50,25 +50,30 @@
     -->
     <v-layout pl-2 pr-2>
       <v-flex hidden-xs-only sm12>
-        <v-card v-if="!hasError" :color="headerColor" flat class="white--text pl-3 pr-1" height="40px">
+        <v-card v-if="!hasError" flat class="black--text pl-3 pr-1" height="40px">
           <v-layout align-center justify-start row fill-height pr-3>
-            <v-flex xs4 sm3 md1 pl-3>
+            <v-flex sm2 md1 pl-3>
               <h5>{{ $t('block.number') }}</h5>
             </v-flex>
-            <v-flex xs6 sm6 md6>
+            <v-flex sm3 md2>
               <h5>{{ $tc('tx.hash', 1) }}</h5>
             </v-flex>
-            <v-flex hidden-xs-only sm2 md1>
+            <v-flex sm2>
+              <h5>{{ $t('tx.from') }}</h5>
+            </v-flex>
+            <v-flex sm2>
+              <h5>{{ $t('tx.to') }}</h5>
+            </v-flex>
+            <v-flex sm2 md1 class="text-sm-center">
               <h5>{{ $t('common.eth') }}</h5>
             </v-flex>
-            <v-flex hidden-sm-and-down md2>
+            <v-flex hidden-sm-and-down md2 class="text-sm-center">
               <h5>{{ $t('common.age') }}</h5>
             </v-flex>
-            <v-flex hidden-sm-and-down md1>
+            <v-flex hidden-sm-and-down md1 class="text-sm-center">
               <h5>{{ $tc('tx.fee', 1) }}</h5>
             </v-flex>
-
-            <v-flex hidden-xs-only sm1>
+            <v-flex sm1 class="text-sm-center">
               <h5>{{ $t('tx.status') }}</h5>
             </v-flex>
           </v-layout>
