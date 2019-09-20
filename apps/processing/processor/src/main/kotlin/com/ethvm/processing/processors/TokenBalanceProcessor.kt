@@ -28,8 +28,8 @@ class TokenBalanceProcessor : AbstractProcessor<BlockRecord>("token-balance-proc
 
   override val topics = listOf(topicBlocks)
 
-  private val fungibleBalanceCache = FungibleBalanceCache(memoryDb, diskDb, scheduledExecutor, TokenType.ERC20, processorId)
-  private val nonFungibleBalanceCache = NonFungibleBalanceCache(memoryDb, diskDb, scheduledExecutor, TokenType.ERC721, processorId)
+  private val fungibleBalanceCache = FungibleBalanceCache(diskDb, TokenType.ERC20, processorId)
+  private val nonFungibleBalanceCache = NonFungibleBalanceCache(diskDb, TokenType.ERC721, processorId)
 
   override fun blockHashFor(value: BlockRecord): String = value.header.hash
 

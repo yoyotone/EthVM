@@ -2,20 +2,24 @@ package com.ethvm.processing.cache
 
 import com.ethvm.avro.processing.BalanceDeltaType
 import com.ethvm.avro.processing.TransactionCountRecord
-import com.ethvm.db.Tables.*
-import com.ethvm.db.tables.records.*
+import com.ethvm.db.Tables.ADDRESS_CONTRACTS_CREATED_COUNT
+import com.ethvm.db.Tables.ADDRESS_CONTRACTS_CREATED_COUNT_DELTA
+import com.ethvm.db.Tables.ADDRESS_INTERNAL_TRANSACTION_COUNT
+import com.ethvm.db.Tables.ADDRESS_INTERNAL_TRANSACTION_COUNT_DELTA
+import com.ethvm.db.tables.records.AddressContractsCreatedCountDeltaRecord
+import com.ethvm.db.tables.records.AddressContractsCreatedCountRecord
+import com.ethvm.db.tables.records.AddressInternalTransactionCountDeltaRecord
+import com.ethvm.db.tables.records.AddressInternalTransactionCountRecord
+import com.ethvm.db.tables.records.BalanceDeltaRecord
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.TableRecord
 import org.mapdb.DB
 import org.mapdb.Serializer
 import java.math.BigInteger
-import java.util.concurrent.ScheduledExecutorService
 
 class InternalTxsCountsCache(
-  memoryDb: DB,
   diskDb: DB,
-  scheduledExecutor: ScheduledExecutorService,
   processorId: String,
   private val dbFetchSize: Int = 512
 ) {
@@ -23,38 +27,31 @@ class InternalTxsCountsCache(
   val logger = KotlinLogging.logger {}
 
   private val internalTxCountByAddress = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_internal_tx_count_by_address",
     Serializer.STRING,
     MapDbSerializers.forAvro<TransactionCountRecord>(TransactionCountRecord.`SCHEMA$`),
     TransactionCountRecord
       .newBuilder()
       .build(),
-    1024 * 1024 * 32 // 32 mb
+    50_000
   )
 
   private val contractsCreatedByAddress = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_contracts_created_by_address",
     Serializer.STRING,
     Serializer.LONG,
     0L,
-    1024 * 1024 * 16 // 16 mb
+    50_000
   )
 
   private val metadataMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_counts_metadata",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
-    BigInteger.ZERO,
-    1024 // 1 kb
+    BigInteger.ZERO
   )
 
   private val cacheStores = listOf(internalTxCountByAddress, contractsCreatedByAddress, metadataMap)
@@ -105,7 +102,6 @@ class InternalTxsCountsCache(
       set(addressCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "$count entries processed" }
       }
     }
@@ -128,7 +124,6 @@ class InternalTxsCountsCache(
       set(contractCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "$count entries processed" }
       }
     }
@@ -136,9 +131,6 @@ class InternalTxsCountsCache(
     contractCountCursor.close()
 
     logger.info { "Contract counts reloaded. $count entries processed" }
-
-    // final flush of any pending writes
-    cacheStores.forEach { it.flushToDisk(true) }
 
     // re-enable db record generation
     writeHistoryToDb = true
@@ -322,7 +314,6 @@ class InternalTxsCountsCache(
       }
     }
 
-    cacheStores.forEach { it.flushToDisk() }
     historyRecords = emptyList()
   }
 
@@ -416,9 +407,6 @@ class InternalTxsCountsCache(
       // just clear everything
       cacheStores.forEach { it.clear() }
     }
-
-    // flush cache store state to disk
-    cacheStores.forEach { it.flushToDisk() }
 
     logger.info { "Rewind complete" }
   }

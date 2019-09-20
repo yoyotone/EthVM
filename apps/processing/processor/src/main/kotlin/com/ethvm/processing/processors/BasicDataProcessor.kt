@@ -27,7 +27,7 @@ class BasicDataProcessor : AbstractProcessor<BlockRecord>("basic-data-processor"
   override val topics = listOf(topicBlocks)
 
   // cache for various counts
-  private val blockCountsCache: BlockCountsCache = BlockCountsCache(memoryDb, diskDb, scheduledExecutor, processorId)
+  private val blockCountsCache: BlockCountsCache = BlockCountsCache(diskDb, processorId)
 
   // cache for keeping track of block timestamps for determining block time
   private val blockTimestampCache: BlockTimestampCache = BlockTimestampCache(memoryDb, scheduledExecutor, processorId)

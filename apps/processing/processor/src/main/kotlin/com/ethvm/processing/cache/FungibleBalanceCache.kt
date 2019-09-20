@@ -17,12 +17,9 @@ import org.jooq.DSLContext
 import org.mapdb.DB
 import org.mapdb.Serializer
 import java.math.BigInteger
-import java.util.concurrent.ScheduledExecutorService
 
 class FungibleBalanceCache(
-  memoryDb: DB,
   diskDb: DB,
-  scheduledExecutor: ScheduledExecutorService,
   private val tokenType: TokenType,
   processorId: String,
   private val dbFetchSize: Int = 512
@@ -32,50 +29,41 @@ class FungibleBalanceCache(
 
   // for tracking latest processed block number
   private val metadataMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_fungible_balances_metadata",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
-    BigInteger.ZERO,
-    1024 // 1kb
+    BigInteger.ZERO
   )
 
   // for tracking fungible balances such as ether or erc20
   private val balanceMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_fungible_balances",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
     BigInteger.ZERO,
-    1024 * 1024 * 128 // 128 mb
+    100_000
   )
 
   // for tracking the total number of fungible tokens an address has
   private val addressTokenCountMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_address_fungible_token_balance_count",
     Serializer.STRING,
     Serializer.LONG,
     0L,
-    1024 * 1024 * 32 // 32 mb
+    50_000
   )
 
   // for tracking the total number of non zero balance holders of a fungible token
   private val contractHolderCountMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_fungible_token_holder_count",
     Serializer.STRING,
     Serializer.LONG,
     0L,
-    1024 * 1024 * 16 // 16 mb
+    50_000
   )
 
   // convenience list of all cache stores
@@ -131,7 +119,6 @@ class FungibleBalanceCache(
       set(balanceCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "[$tokenType] $count deltas processed" }
       }
     }
@@ -155,7 +142,6 @@ class FungibleBalanceCache(
       set(addressTokenCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "[$tokenType] $count address token counts processed" }
       }
     }
@@ -179,7 +165,6 @@ class FungibleBalanceCache(
       set(contractHolderCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "[$tokenType] $count contract holder counts processed" }
       }
     }
@@ -187,9 +172,6 @@ class FungibleBalanceCache(
     contractHolderCountCursor.close()
 
     logger.info { "[$tokenType] Contract holder count reloaded. $count contract holder counts processed" }
-
-    // final flush for any lingering pending writes
-    cacheStores.forEach { it.flushToDisk(true) }
 
     // re-enable db record generation
     writeHistoryToDb = true
@@ -336,8 +318,6 @@ class FungibleBalanceCache(
       metadataMap["lastChangeBlockNumber"] = lastChangeBlockNumberFromDb(txCtx)
     }
 
-    cacheStores.forEach { it.flushToDisk() }
-
     balanceRecords = emptyList()
     addressTokenCountRecords = emptyList()
     contractHolderCountRecords = emptyList()
@@ -481,9 +461,6 @@ class FungibleBalanceCache(
       logger.info { "[$tokenType] Clearing all cache stores" }
       cacheStores.forEach { it.clear() }
     }
-
-    logger.info { "[$tokenType] Flushing cache stores to disk" }
-    cacheStores.forEach { it.flushToDisk() }
 
     logger.info { "[$tokenType] Rewind complete" }
   }

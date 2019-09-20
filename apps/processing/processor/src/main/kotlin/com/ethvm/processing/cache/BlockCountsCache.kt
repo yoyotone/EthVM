@@ -18,12 +18,9 @@ import org.jooq.TableRecord
 import org.mapdb.DB
 import org.mapdb.Serializer
 import java.math.BigInteger
-import java.util.concurrent.ScheduledExecutorService
 
 class BlockCountsCache(
-  memoryDb: DB,
   diskDb: DB,
-  scheduledExecutor: ScheduledExecutorService,
   processorId: String,
   private val dbFetchSize: Int = 512
 ) {
@@ -33,51 +30,41 @@ class BlockCountsCache(
   // simple metadata map, used only for tracking local latest block number
 
   private val metadataMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_counts_metadata",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
-    BigInteger.ZERO,
-    1024 // 1 kb
+    BigInteger.ZERO
   )
 
   private val canonicalCountMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_canonical_count",
     Serializer.STRING,
     Serializer.LONG,
-    0L,
-    1024 // 1 kb
+    0L
   )
 
   private val txCountByAddress =
     CacheStore(
-      memoryDb,
       diskDb,
-      scheduledExecutor,
       "${processorId}_tx_count_by_address",
       Serializer.STRING,
       MapDbSerializers.forAvro<TransactionCountRecord>(TransactionCountRecord.`SCHEMA$`),
       TransactionCountRecord
         .newBuilder()
         .build(),
-      1024 * 1024 * 64 // 64 mb
+      50_000
     )
 
   private val minedCountByAddress =
     CacheStore(
-      memoryDb,
       diskDb,
-      scheduledExecutor,
       "${processorId}_mined_count_by_address",
       Serializer.STRING,
       Serializer.LONG,
       0L,
-      1024 * 1024 * 32 // 32 mb
+      10_000
     )
 
   // list of all cache stores for convenience later
@@ -144,7 +131,6 @@ class BlockCountsCache(
       set(addressTxCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "$count entries processed" }
       }
     }
@@ -167,7 +153,6 @@ class BlockCountsCache(
       set(minerCountCursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "$count entries processed" }
       }
     }
@@ -175,10 +160,6 @@ class BlockCountsCache(
     minerCountCursor.close()
 
     logger.info { "Miner counts reloaded" }
-
-    // final flush to disk for any remaining modifications at the end of the batches
-
-    cacheStores.forEach { it.flushToDisk(true) }
 
     // re-enable db record generation
 
@@ -352,8 +333,6 @@ class BlockCountsCache(
       metadataMap["lastChangeBlockNumber"] = lastChangeBlockNumberDb(txCtx)
     }
 
-    cacheStores.forEach { it.flushToDisk() }
-
     historyRecords = emptyList()
   }
 
@@ -459,10 +438,6 @@ class BlockCountsCache(
     // update our local latest block number
 
     metadataMap["lastChangeBlockNumber"] = lastChangeBlockNumberDb(txCtx)
-
-    // flush to disk our local state
-
-    cacheStores.forEach { it.flushToDisk() }
 
     logger.info { "Rewind complete" }
   }

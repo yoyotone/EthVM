@@ -13,9 +13,7 @@ import java.math.BigInteger
 import java.util.concurrent.ScheduledExecutorService
 
 class NonFungibleBalanceCache(
-  memoryDb: DB,
   diskDb: DB,
-  scheduledExecutor: ScheduledExecutorService,
   private val tokenType: TokenType,
   processorId: String,
   private val dbFetchSize: Int = 512
@@ -24,25 +22,20 @@ class NonFungibleBalanceCache(
   val logger = KotlinLogging.logger {}
 
   private val balanceMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_non_fungible_balances",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
     BigInteger.ZERO,
-    1024 * 1024 * 128 // 128 mb
+    100_000
   )
 
   private val metadataMap = CacheStore(
-    memoryDb,
     diskDb,
-    scheduledExecutor,
     "${processorId}_non_fungible_balances_metadata",
     Serializer.STRING,
     Serializer.BIG_INTEGER,
-    BigInteger.ZERO,
-    1024
+    BigInteger.ZERO
   )
 
   // convenience lists
@@ -93,14 +86,11 @@ class NonFungibleBalanceCache(
       assign(cursor.fetchNext())
       count += 1
       if (count % dbFetchSize == 0) {
-        cacheStores.forEach { it.flushToDisk(true) }
         logger.info { "[$tokenType] $count deltas processed" }
       }
     }
 
     cursor.close()
-
-    cacheStores.forEach { it.flushToDisk(true) }
 
     writeHistoryToDb = true
 
@@ -180,8 +170,6 @@ class NonFungibleBalanceCache(
 
       balanceHistoryRecords = emptyList()
     }
-
-    cacheStores.forEach { it.flushToDisk() }
   }
 
   fun reset(txCtx: DSLContext) {
@@ -228,8 +216,6 @@ class NonFungibleBalanceCache(
 
     // update our local last change block block number
     metadataMap["lastChangeBlockNumber"] = lastChangeBlockNumberDb(txCtx)
-
-    cacheStores.forEach { it.flushToDisk() }
 
     // re-enable history
     writeHistoryToDb = true

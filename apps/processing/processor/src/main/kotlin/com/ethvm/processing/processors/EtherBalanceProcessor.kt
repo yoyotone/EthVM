@@ -33,10 +33,10 @@ class EtherBalanceProcessor : AbstractProcessor<TraceListRecord>("ether-balance-
   override val topics: List<String> = listOf(topicTraces)
 
   // for tracking ether balances
-  private val fungibleBalanceCache = FungibleBalanceCache(memoryDb, diskDb, scheduledExecutor, TokenType.ETHER, processorId)
+  private val fungibleBalanceCache = FungibleBalanceCache(diskDb, TokenType.ETHER, processorId)
 
   // for tracking internal txs
-  private val internalTxsCountsCache = InternalTxsCountsCache(memoryDb, diskDb, scheduledExecutor, processorId)
+  private val internalTxsCountsCache = InternalTxsCountsCache(diskDb, processorId)
 
   // increase the max transaction time as this processor is write heavy and we want to benefit a bit more from
   // the economies of scale with transaction writes

@@ -72,11 +72,13 @@ class BalanceChecker(
 
       if (blockNumber != balance.blockNumber) {
         blockNumber = balance.blockNumber
-        logger.info { "Checking block $blockNumber" }
+//        logger.info { "Checking block $blockNumber" }
       }
 
       batch = batch + balance
-      if (batch.size == batchSize) {
+
+      if (batch.size == batchSize || !cursor.hasNext()) {
+
         val (matches, failures) = processBatch(batch)
         matched += matches
         failed += failures
@@ -87,8 +89,6 @@ class BalanceChecker(
     }
 
     cursor.close()
-
-    processBatch(batch)
 
     logger.info { "Final report. Matched = $matched, failures = $failed" }
 
